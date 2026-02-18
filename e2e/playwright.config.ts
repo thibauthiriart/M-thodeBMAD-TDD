@@ -21,6 +21,7 @@ export default defineConfig({
   },
   use: {
     baseURL: process.env.APP_URL || 'http://localhost:5176',
+    actionTimeout: 5_000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
