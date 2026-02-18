@@ -1,0 +1,47 @@
+pipeline_version: 1
+stories:
+  1-1:
+    status: done
+    started_at: '2026-02-18T14:31:15.449222'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-18T14:45:28.869520'
+  1-2:
+    status: done
+    started_at: '2026-02-18T14:55:20.593749'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 2
+      report_file: ''
+    updated_at: '2026-02-18T15:37:59.690237'
+  1-3:
+    status: done
+    started_at: '2026-02-18T15:41:15.844561'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 1
+      report_file: ''
+    updated_at: '2026-02-18T16:12:16.515637'
+  1-4:
+    status: dev-parallel
+    started_at: '2026-02-18T16:14:14.257855'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-18T16:26:04.105709'
+current_story: 1-4
+status: in-progress
