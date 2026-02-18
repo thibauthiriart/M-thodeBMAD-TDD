@@ -1,0 +1,51 @@
+# Phoenix E2E QA workflow
+name: e2e-qa
+description: "Generate full-chain Playwright E2E tests with DB assertions"
+author: "TresoPilot"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+implementation_artifacts: "{config_source}:implementation_artifacts"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/qa/e2e"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  e2e_dir: "{project-root}/e2e"
+  test_dir: "{project-root}/e2e/tests"
+  helpers_dir: "{project-root}/e2e/helpers"
+  api_dir: "{project-root}/api"
+
+# Output configuration
+default_output_file: "{implementation_artifacts}/reviews/{story-id}-e2e-qa.md"
+
+# Required tools
+required_tools:
+  - read_file
+  - write_file
+  - create_directory
+  - list_files
+  - search_repo
+  - glob
+  - bash
+
+tags:
+  - e2e
+  - playwright
+  - qa
+  - database
+  - full-chain
+
+execution_hints:
+  interactive: false
+  autonomous: true
+  iterative: true
