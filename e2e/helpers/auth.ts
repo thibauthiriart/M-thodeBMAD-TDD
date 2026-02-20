@@ -38,6 +38,10 @@ export async function loginAs(
 ): Promise<{ userId: number; entrepriseId: number; token: string }> {
   // 1. Call login API directly
   const response = await page.request.post(`${API_URL}/auth/login`, {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
     data: { email, password },
   });
 
@@ -77,11 +81,19 @@ export async function loginAs(
 
 /**
  * Clear auth state from localStorage.
+ * Navigates to the app first if the page is on about:blank (fresh context).
  */
 export async function logout(page: Page): Promise<void> {
+  // Ensure we're on the app origin so localStorage is accessible
+  const currentUrl = page.url();
+  if (!currentUrl || currentUrl === 'about:blank') {
+    await page.goto('/');
+  }
+
   await page.evaluate(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('activeEntrepriseId');
+    localStorage.removeItem('user');
   });
   await page.reload();
 }

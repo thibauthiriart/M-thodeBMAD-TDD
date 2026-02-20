@@ -84,28 +84,52 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
+   * Internal promise to prevent concurrent hydration calls.
+   * When the router guard and App.vue both call hydrate(),
+   * only one API request is made.
+   */
+  let hydratePromise: Promise<void> | null = null
+
+  /**
    * Hydrate user data from the server using the stored token.
    * Called on app init when a token exists in localStorage.
+   * Safe to call multiple times — concurrent calls share the same promise.
    */
   async function hydrate(): Promise<void> {
-    if (!token.value) return
+    // Read token from localStorage directly in case the store
+    // was created before the token was set (e.g. by e2e loginAs helper)
+    const currentToken = token.value || localStorage.getItem('token')
+    if (!currentToken) return
 
+    // If user is already hydrated, skip
+    if (user.value) return
+
+    // If hydration is already in progress, wait for it
+    if (hydratePromise) return hydratePromise
+
+    token.value = currentToken
     isHydrating.value = true
-    try {
-      const userData = await authService.fetchCurrentUser(token.value)
-      user.value = userData
-      isAuthenticated.value = true
-      localStorage.setItem('user', JSON.stringify(userData))
-    } catch (error: unknown) {
-      // Only clear auth if the server explicitly rejected the token (401/403).
-      // Network errors or aborted requests (e.g. page navigation) should NOT
-      // clear the token from localStorage — it may still be valid.
-      if (error instanceof AuthenticationError) {
-        clearAuth()
+
+    hydratePromise = (async () => {
+      try {
+        const userData = await authService.fetchCurrentUser(currentToken)
+        user.value = userData
+        isAuthenticated.value = true
+        localStorage.setItem('user', JSON.stringify(userData))
+      } catch (error: unknown) {
+        // Only clear auth if the server explicitly rejected the token (401/403).
+        // Network errors or aborted requests (e.g. page navigation) should NOT
+        // clear the token from localStorage — it may still be valid.
+        if (error instanceof AuthenticationError) {
+          clearAuth()
+        }
+      } finally {
+        isHydrating.value = false
+        hydratePromise = null
       }
-    } finally {
-      isHydrating.value = false
-    }
+    })()
+
+    return hydratePromise
   }
 
   return {

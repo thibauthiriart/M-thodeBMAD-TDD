@@ -13,6 +13,10 @@ Usage:
   python pipeline.py <story-id>         # Lancer le pipeline pour une US
   python pipeline.py --status           # Voir l'état du pipeline
   python pipeline.py --resume <story>   # Reprendre une US interrompue
+  python pipeline.py --batch all        # Lancer TOUTES les stories
+  python pipeline.py --batch 2          # Lancer toutes les stories de l'epic 2
+  python pipeline.py --batch 2-1,2-3    # Lancer des stories spécifiques
+  python pipeline.py --batch 2 --skip-done  # Sauter les stories déjà done
 """
 
 import argparse
@@ -24,7 +28,11 @@ from pathlib import Path
 # Ajouter scripts/ au path pour les imports locaux
 sys.path.insert(0, str(Path(__file__).parent))
 
+import re
+import time
+
 from config import (
+    BMAD_OUTPUT,
     MAX_SHERLOCK_LEVEL,
     PIPELINE_STATE,
     PROJECT_ROOT,
@@ -356,6 +364,248 @@ async def run_pipeline(story_id: str, logger, resume_from: str | None = None) ->
         logger.info(f"[BOUCLE] Retour aux tests après fix Sherlock L{sherlock_level}")
 
 
+# --- Batch: Discovery & Sorting ---
+
+def discover_stories() -> list[str]:
+    """Découvre toutes les stories disponibles dans US/."""
+    stories = []
+    if US_DIR.exists():
+        for d in sorted(US_DIR.iterdir()):
+            if d.is_dir() and (d / f"{d.name}.md").exists():
+                stories.append(d.name)
+    return sorted(stories, key=_story_sort_key)
+
+
+def _story_sort_key(story_id: str) -> tuple[int, int]:
+    """Tri naturel : '1-2' → (1, 2), '10-3' → (10, 3)."""
+    m = re.match(r"(\d+)-(\d+)", story_id)
+    if m:
+        return int(m.group(1)), int(m.group(2))
+    return (999, 999)
+
+
+def resolve_batch_target(target: str) -> list[str]:
+    """Résout la cible batch en liste de story IDs.
+
+    Formats supportés :
+      'all'       → toutes les stories
+      '2'         → toutes les stories de l'epic 2 (2-1, 2-2, ...)
+      '2-1,2-3'   → stories spécifiques
+      '2-5'       → stories 2-1 à 2-5
+    """
+    all_stories = discover_stories()
+
+    if target == "all":
+        return all_stories
+
+    # Liste explicite : '2-1,2-3,3-1'
+    if "," in target:
+        requested = [s.strip() for s in target.split(",")]
+        return [s for s in requested if s in all_stories]
+
+    # Epic entier : '2' → toutes les stories 2-*
+    if re.match(r"^\d+$", target):
+        epic = target
+        return [s for s in all_stories if s.startswith(f"{epic}-")]
+
+    # Story unique : '2-1'
+    if target in all_stories:
+        return [target]
+
+    print(f"Erreur : cible batch '{target}' non reconnue.")
+    print(f"Stories disponibles : {', '.join(all_stories)}")
+    return []
+
+
+# --- Batch: Execution & Report ---
+
+async def run_batch(
+    stories: list[str],
+    logger,
+    skip_done: bool = False,
+) -> dict:
+    """Exécute le pipeline pour une liste de stories séquentiellement.
+
+    Returns:
+        Dict avec les résultats de chaque story.
+    """
+    state = load_pipeline_state()
+    results = {}
+    batch_start = time.time()
+
+    total = len(stories)
+    logger.info(f"\n{'═'*60}")
+    logger.info(f"BATCH PIPELINE — {total} stories")
+    logger.info(f"{'═'*60}")
+    logger.info(f"Stories : {', '.join(stories)}")
+    if skip_done:
+        logger.info(f"Mode : --skip-done (les stories 'done' seront sautées)")
+    logger.info("")
+
+    for i, story_id in enumerate(stories, 1):
+        story_start = time.time()
+
+        # Vérifier si déjà done
+        story_state = state.get("stories", {}).get(story_id, {})
+        if skip_done and story_state.get("status") == "done":
+            elapsed = 0.0
+            results[story_id] = {
+                "status": "skipped",
+                "sherlock": 0,
+                "duration_s": 0,
+                "reason": "déjà done",
+            }
+            logger.info(f"[{i}/{total}] {story_id} — SKIPPED (déjà done)")
+            continue
+
+        logger.info(f"\n{'▓'*60}")
+        logger.info(f"[{i}/{total}] STORY {story_id}")
+        logger.info(f"{'▓'*60}")
+
+        # Reprendre si interrompu, sinon lancer depuis le début
+        resume_from = story_id if story_state.get("status") not in ("", "done", "escalated") else None
+
+        try:
+            success = await run_pipeline(story_id, logger, resume_from=resume_from)
+            elapsed = time.time() - story_start
+
+            # Recharger l'état après le pipeline
+            state = load_pipeline_state()
+            sherlock_lvl = state.get("stories", {}).get(story_id, {}).get("sherlock", {}).get("current_level", 0)
+
+            results[story_id] = {
+                "status": "pass" if success else "fail",
+                "sherlock": sherlock_lvl,
+                "duration_s": elapsed,
+            }
+
+            status_str = "PASS" if success else "FAIL (escalade)"
+            logger.info(f"[{i}/{total}] {story_id} — {status_str} ({elapsed:.0f}s, Sherlock L{sherlock_lvl})")
+
+        except Exception as e:
+            elapsed = time.time() - story_start
+            results[story_id] = {
+                "status": "error",
+                "sherlock": 0,
+                "duration_s": elapsed,
+                "reason": str(e),
+            }
+            logger.error(f"[{i}/{total}] {story_id} — ERROR: {e}")
+
+    batch_elapsed = time.time() - batch_start
+
+    # Générer le rapport
+    report_path = generate_batch_report(results, batch_elapsed, logger)
+
+    # Résumé final
+    passed = sum(1 for r in results.values() if r["status"] == "pass")
+    failed = sum(1 for r in results.values() if r["status"] == "fail")
+    errors = sum(1 for r in results.values() if r["status"] == "error")
+    skipped = sum(1 for r in results.values() if r["status"] == "skipped")
+
+    logger.info(f"\n{'═'*60}")
+    logger.info(f"BATCH TERMINÉ — {len(stories)} stories en {batch_elapsed:.0f}s")
+    logger.info(f"{'═'*60}")
+    logger.info(f"  PASS    : {passed}")
+    logger.info(f"  FAIL    : {failed}")
+    logger.info(f"  ERROR   : {errors}")
+    logger.info(f"  SKIPPED : {skipped}")
+    logger.info(f"  Rapport : {report_path}")
+    logger.info(f"{'═'*60}")
+
+    return results
+
+
+def generate_batch_report(results: dict, total_elapsed: float, logger) -> Path:
+    """Génère un rapport markdown consolidé."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_path = BMAD_OUTPUT / f"batch-report-{timestamp}.md"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    passed = sum(1 for r in results.values() if r["status"] == "pass")
+    failed = sum(1 for r in results.values() if r["status"] == "fail")
+    errors = sum(1 for r in results.values() if r["status"] == "error")
+    skipped = sum(1 for r in results.values() if r["status"] == "skipped")
+    total = len(results)
+
+    lines = [
+        f"# Rapport Batch Pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        "",
+        "## Résumé",
+        "",
+        f"| Métrique | Valeur |",
+        f"|----------|--------|",
+        f"| Stories traitées | {total} |",
+        f"| PASS | {passed} |",
+        f"| FAIL | {failed} |",
+        f"| ERROR | {errors} |",
+        f"| SKIPPED | {skipped} |",
+        f"| Durée totale | {_format_duration(total_elapsed)} |",
+        f"| Taux de réussite | {passed}/{total - skipped} ({_pct(passed, total - skipped)}) |",
+        "",
+        "## Détail par story",
+        "",
+        "| Story | Statut | Sherlock | Durée | Détail |",
+        "|-------|--------|----------|-------|--------|",
+    ]
+
+    for story_id, r in results.items():
+        status = r["status"]
+        if status == "pass":
+            status_icon = "PASS"
+        elif status == "fail":
+            status_icon = "FAIL"
+        elif status == "skipped":
+            status_icon = "SKIP"
+        else:
+            status_icon = "ERR"
+
+        sherlock_str = f"L{r['sherlock']}" if r["sherlock"] > 0 else "—"
+        duration_str = _format_duration(r["duration_s"]) if r["duration_s"] > 0 else "—"
+        detail = r.get("reason", "")
+        lines.append(f"| {story_id} | {status_icon} | {sherlock_str} | {duration_str} | {detail} |")
+
+    # Section échecs détaillés
+    failures = {k: v for k, v in results.items() if v["status"] in ("fail", "error")}
+    if failures:
+        lines.append("")
+        lines.append("## Stories en échec")
+        lines.append("")
+        for story_id, r in failures.items():
+            lines.append(f"### {story_id} — {r['status'].upper()}")
+            if r.get("reason"):
+                lines.append(f"**Raison** : {r['reason']}")
+            sherlock_file = US_DIR / story_id / "sherlock-report.md"
+            if sherlock_file.exists():
+                lines.append(f"**Rapport Sherlock** : `US/{story_id}/sherlock-report.md`")
+            lines.append("")
+    else:
+        lines.append("")
+        lines.append("## Toutes les stories sont passées !")
+        lines.append("")
+
+    report_content = "\n".join(lines)
+    report_path.write_text(report_content, encoding="utf-8")
+    logger.info(f"[RAPPORT] Généré : {report_path}")
+    return report_path
+
+
+def _format_duration(seconds: float) -> str:
+    """Formate une durée en 'Xm Ys'."""
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes}m {secs:02d}s"
+
+
+def _pct(n: int, total: int) -> str:
+    """Pourcentage formaté."""
+    if total == 0:
+        return "—"
+    return f"{n / total * 100:.0f}%"
+
+
 # --- CLI ---
 
 def show_status():
@@ -387,19 +637,34 @@ async def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples :
-  python pipeline.py story-001              # Lancer le pipeline
+  python pipeline.py 1-1                    # Lancer une story
   python pipeline.py --status               # Voir l'état
-  python pipeline.py --resume story-001     # Reprendre une US interrompue
+  python pipeline.py --resume 1-4           # Reprendre une US interrompue
+  python pipeline.py --batch all            # Lancer TOUTES les stories
+  python pipeline.py --batch 2              # Lancer l'epic 2
+  python pipeline.py --batch 2-1,2-3        # Stories spécifiques
+  python pipeline.py --batch all --skip-done  # Sauter les stories déjà terminées
         """,
     )
-    parser.add_argument("story_id", nargs="?", help="ID de la story (ex: story-001)")
+    parser.add_argument("story_id", nargs="?", help="ID de la story (ex: 1-1)")
     parser.add_argument("--status", action="store_true", help="Afficher l'état du pipeline")
     parser.add_argument("--resume", metavar="STORY", help="Reprendre une story interrompue")
+    parser.add_argument("--batch", metavar="TARGET", help="Batch: 'all', epic number, or comma-separated story IDs")
+    parser.add_argument("--skip-done", action="store_true", help="En mode batch, sauter les stories déjà done")
 
     args = parser.parse_args()
 
     if args.status:
         show_status()
+        return
+
+    if args.batch:
+        stories = resolve_batch_target(args.batch)
+        if not stories:
+            print("Aucune story trouvée pour cette cible.")
+            return
+        logger = setup_logging("batch", args.batch.replace(",", "_"))
+        await run_batch(stories, logger, skip_done=args.skip_done)
         return
 
     if args.resume:

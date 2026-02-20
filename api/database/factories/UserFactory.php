@@ -42,4 +42,34 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Create a user with the "acheteur" role.
+     */
+    public function acheteur(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'acheteur',
+        ]);
+    }
+
+    /**
+     * Create a user with the "vendeur" role.
+     */
+    public function vendeur(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'vendeur',
+        ]);
+    }
+
+    /**
+     * Create a user with the "admin" role.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
 }

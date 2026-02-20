@@ -1,6 +1,5 @@
 import type { AuthResponse, LoginForm, RegisterForm, User, ValidationErrors } from '@/types/auth'
-
-const API_BASE = '/api'
+import { API_BASE } from '@/config/api'
 
 export interface ApiValidationError {
   message: string

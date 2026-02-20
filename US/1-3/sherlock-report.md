@@ -7,7 +7,7 @@
 ---
 
 ### BUG-001: Le setTimeout du message de succès n'est jamais annulé (clearTimeout manquant)
-- **Statut** : 🔴 EN COURS
+- **Statut** : ✅ CORRIGÉ
 - **Test(s) échoué(s)** : #10 — `after saving, name field retains the updated value`
 - **Diagnostic** :
   Dans `frontend/src/stores/profile.ts`, la fonction `updateProfile()` (ligne 87-89) lance un `setTimeout` de 4 secondes pour masquer le `successMessage` après chaque sauvegarde réussie. **Aucun `clearTimeout` n'est effectué avant de relancer un nouveau timer.**
@@ -52,7 +52,7 @@
 ---
 
 ### BUG-002: Le test #12 ne restaure pas le nom original (pollution de la DB pour les tests suivants)
-- **Statut** : 🔴 EN COURS
+- **Statut** : ✅ CORRIGÉ
 - **Test(s) échoué(s)** : #13 — `clicking cancel resets name to original value`
 - **Diagnostic** :
   Le test #12 (`save button shows loading spinner during API call`, lignes 305-322) sauvegarde le nom `"Loading Test"` en base de données via un vrai appel API, **mais ne restaure jamais le nom original**. Tous les tests suivants qui récupèrent le profil obtiennent `"Loading Test"` comme nom.
@@ -130,7 +130,7 @@
 ---
 
 ### BUG-003: La validation côté client ne bloque pas les noms composés uniquement d'espaces (whitespace-only)
-- **Statut** : 🔴 EN COURS
+- **Statut** : ✅ CORRIGÉ
 - **Test(s) échoué(s)** : #16 — `saving with whitespace-only name shows error message`
 - **Diagnostic** :
   Le code du store (`frontend/src/stores/profile.ts`, lignes 65-71) contient bien une validation client-side :
@@ -192,7 +192,7 @@
 ---
 
 ### BUG-004: Le test #17 timeout car `fill()` attend indéfiniment sur un input disabled
-- **Statut** : 🔴 EN COURS
+- **Statut** : ✅ CORRIGÉ
 - **Test(s) échoué(s)** : #17 — `email input is disabled and cannot be modified`
 - **Diagnostic** :
   Le test (lignes 438-456) tente de faire `emailInput.fill('hacker@evil.com')` sur un input `disabled`. Le comportement de Playwright pour `fill()` sur un élément disabled est d'**attendre que l'élément devienne enabled** (avec le timeout par défaut de 30s). Puisque le champ email est **définitivement disabled**, `fill()` ne résout jamais.
@@ -240,12 +240,12 @@
 
 ## Résumé des corrections
 
-| Bug ID  | Sévérité | Type de correction | Fichier principal |
-|---------|----------|-------------------|-------------------|
-| BUG-001 | 🔴 Haute | Code applicatif (store) | `frontend/src/stores/profile.ts` |
-| BUG-002 | 🟡 Moyenne | Test E2E (cleanup + timing) | `e2e/tests/1-3.e2e.ts` |
-| BUG-003 | 🔴 Haute | Code applicatif (validation) | `frontend/src/views/ProfilePage.vue` |
-| BUG-004 | 🟡 Moyenne | Test E2E (méthode de test) | `e2e/tests/1-3.e2e.ts` |
+| Bug ID  | Sévérité | Type de correction | Fichier principal | Statut |
+|---------|----------|-------------------|-------------------|--------|
+| BUG-001 | 🔴 Haute | Code applicatif (store) | `frontend/src/stores/profile.ts` | ✅ CORRIGÉ |
+| BUG-002 | 🟡 Moyenne | Test E2E (cleanup + timing) | `e2e/tests/1-3.e2e.ts` | ✅ CORRIGÉ |
+| BUG-003 | 🔴 Haute | Code applicatif (validation) | `frontend/src/views/ProfilePage.vue` | ✅ CORRIGÉ |
+| BUG-004 | 🟡 Moyenne | Test E2E (méthode de test) | `e2e/tests/1-3.e2e.ts` | ✅ CORRIGÉ |
 
 ### Priorité de résolution recommandée :
 1. **BUG-001** — clearTimeout manquant → impact sur tout test faisant 2+ saves

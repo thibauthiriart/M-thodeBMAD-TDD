@@ -34,14 +34,124 @@ stories:
       report_file: ''
     updated_at: '2026-02-18T16:12:16.515637'
   1-4:
-    status: dev-parallel
+    status: done
     started_at: '2026-02-18T16:14:14.257855'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 2
+      report_file: ''
+    updated_at: '2026-02-19T10:27:23.970043'
+  2-1:
+    status: done
+    started_at: '2026-02-19T11:14:04.962409'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 1
+      report_file: ''
+    updated_at: '2026-02-19T11:39:36.550983'
+  2-2:
+    status: done
+    started_at: '2026-02-19T11:39:36.565782'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T12:05:46.263026'
+  2-3:
+    status: done
+    started_at: '2026-02-19T12:05:46.281859'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T12:25:55.653170'
+  2-4:
+    status: done
+    started_at: '2026-02-19T12:25:55.667717'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T12:41:54.259140'
+  2-5:
+    status: done
+    started_at: '2026-02-19T12:41:54.280463'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T13:05:49.305301'
+  3-1:
+    status: done
+    started_at: '2026-02-19T13:05:49.332404'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T13:21:12.408160'
+  3-2:
+    status: done
+    started_at: '2026-02-19T13:21:12.432636'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T13:42:45.801998'
+  3-3:
+    status: done
+    started_at: '2026-02-19T13:42:45.827593'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 1
+      report_file: ''
+    updated_at: '2026-02-19T14:18:24.467123'
+  3-4:
+    status: done
+    started_at: '2026-02-19T14:18:24.493895'
+    phase_results:
+      front-minimal: done
+      phoenix: done
+      dev-parallel: done
+    sherlock:
+      current_level: 0
+      report_file: ''
+    updated_at: '2026-02-19T14:46:08.206171'
+  4-1:
+    status: dev-parallel
+    started_at: '2026-02-19T14:46:08.232780'
     phase_results:
       front-minimal: done
       phoenix: done
     sherlock:
       current_level: 0
       report_file: ''
-    updated_at: '2026-02-18T16:26:04.105709'
-current_story: 1-4
+    updated_at: '2026-02-19T14:55:53.690934'
+current_story: 4-1
 status: in-progress
