@@ -35,10 +35,9 @@ REGLES CRITIQUES :
 - Lancer la suite de tests apres chaque tache
 - JAMAIS mentir sur les tests
 
-ENVIRONNEMENT DOCKER :
-- TOUJOURS: cd /home/thibaut/Bureau/testApp/api && ./vendor/bin/sail <commande>
-- JAMAIS: php, composer, ./vendor/bin/pest directement
-- Tests frontend: cd /home/thibaut/Bureau/testApp/frontend && npm run test
+ENVIRONNEMENT :
+- Suivre les instructions d'environnement definies dans CLAUDE.md
+- Utiliser les commandes de test appropriees pour le backend et le frontend
 
 {contexte_fix si iteration > 0}
 
@@ -59,23 +58,23 @@ Lancer un sous-agent Task (subagent_type=general-purpose) avec le prompt :
 ```
 Tu es un Architect Senior. Tu fais une code review adversariale de la story {story-id}.
 
-Examine TOUS les fichiers modifies dans le repo /home/thibaut/Bureau/testApp.
+Examine TOUS les fichiers modifies dans le repo.
 Utilise git diff HEAD~1 ou lis les fichiers directement.
 
 REVIEW CHECKLIST :
 1. Architecture : respect des patterns (Service layer, Form Requests, API Resources)
-2. Multi-tenancy : scope entreprise_id present partout
+2. Securite/Isolation : scope et controle d'acces presents partout
 3. Securite : pas d'injection, pas de donnees exposees
 4. Tests : couverture adequate, cas limites
 5. Performance : requetes N+1, eager loading, index
 6. Coherence : si tu corriges un pattern dans une methode, verifie que les methodes
    SIMILAIRES (cancel/destroy/retry, etc.) ont le meme traitement
 
-ENVIRONNEMENT : cd /home/thibaut/Bureau/testApp/api && ./vendor/bin/sail pest pour les tests
+ENVIRONNEMENT : Suivre les instructions d'environnement definies dans CLAUDE.md
 
 Pour chaque probleme, classifier :
 - CRITICAL : bug, faille securite, perte de donnees
-- MAJOR : violation d'architecture, multi-tenancy cassee, tests manquants
+- MAJOR : violation d'architecture, isolation cassee, tests manquants
 - MINOR : convention, nommage, style
 
 Reponds avec un rapport structure :
@@ -123,8 +122,8 @@ Lancer un sous-agent Task (subagent_type=general-purpose) avec le prompt :
 Tu es Quinn, QA Engineer. Tu lances les tests pour la story {story-id}.
 
 ACTIONS :
-1. Lancer les tests backend : cd /home/thibaut/Bureau/testApp/api && ./vendor/bin/sail pest
-2. Lancer les tests frontend : cd /home/thibaut/Bureau/testApp/frontend && npm run test
+1. Lancer les tests backend selon les instructions d'environnement dans CLAUDE.md
+2. Lancer les tests frontend selon les instructions d'environnement dans CLAUDE.md
 3. Si des tests echouent, analyser les erreurs et les rapporter
 
 IMPORTANT :

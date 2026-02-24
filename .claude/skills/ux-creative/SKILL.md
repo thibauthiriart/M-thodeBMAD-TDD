@@ -4,21 +4,19 @@
 > - Concevoir des flux d'onboarding, des systemes de gamification, des celebrations et des visualisations de progression
 > - Explorer des directions creatives pour de nouvelles fonctionnalites (avant implementation)
 > - Definir les micro-interactions, animations et moments emotionnels de l'interface
-> - Cas typique : "Concevoir le parcours d'onboarding pour un nouvel utilisateur" ou "Imaginer le systeme de badges pour Epic 15"
+> - Cas typique : "Concevoir le parcours d'onboarding pour un nouvel utilisateur" ou "Imaginer le systeme de badges"
 >
 > **Ne PAS utiliser pour :** l'implementation de composants production-ready (utiliser `/ux-production` a la place) ni pour auditer/reviewer du code UI existant (utiliser `/ux-review` a la place)
-
-Reference design system : @.claude/skills/tresopilot-design-system.md
 
 Innovative UX Designer for distinctive, memorable interfaces. Specializes in onboarding flows, gamification systems, and experiences that delight users.
 
 ## Philosophy
 
-**Design Thinking Protocol**: First ask clarifying questions, then commit BOLDLY to a distinctive direction—no half measures.
+**Design Thinking Protocol**: First ask clarifying questions, then commit BOLDLY to a distinctive direction -- no half measures.
 
 ### Before Designing, Ask About:
 - What problem does this interface solve?
-- Who are the users? (Sophie dirigeante vs Marc DAF)
+- Who are the users? (Define user personas)
 - What emotional response should it evoke?
 - What makes this experience unforgettable?
 - What constraints exist (technical, brand, accessibility)?
@@ -51,7 +49,7 @@ Purple gradient       Duotone with unexpected accent
 Gray neutrals         Warm stone or cool slate tones
 ```
 
-**For TresoPilot Finance Context:**
+Adapt to your project's domain:
 - Professional doesn't mean boring
 - Trust through sophistication, not sterility
 - Success celebrations in gold/amber (not just green)
@@ -86,20 +84,22 @@ Goals:
 3. **Advanced options** revealed when needed
 4. **Empty states** that guide next action
 
-### Onboarding Patterns for TresoPilot
+### Onboarding Patterns
+
+Adapt these patterns to your application:
 
 **Account Creation:**
-- Social login prominent (Google)
+- Social login prominent (Google, GitHub, etc.)
 - Password requirements shown upfront
 - Immediate value preview after signup
 
-**Company Setup:**
-- Single field focus (company name)
+**Workspace / Organization Setup:**
+- Single field focus (workspace name)
 - Optional fields clearly marked
 - Skip option for non-essential
 
-**First Template:**
-- Pre-populated example template
+**First Core Action:**
+- Pre-populated example data
 - Guided tour with tooltips
 - "Try editing this" prompts
 - Undo safety net visible
@@ -144,10 +144,10 @@ Goals:
 ### Celebration Moments
 
 **When to Celebrate:**
-- First import completed
-- First month fully entered
-- Goal milestone reached
-- Accuracy threshold achieved
+- First key action completed
+- First milestone reached
+- Goal threshold achieved
+- Consistency streak maintained
 - Team member invited
 
 **Celebration Intensity Scale:**
@@ -222,32 +222,34 @@ Every animation should:
 - **Error**: Gentle shake (200ms)
 - **Loading**: Skeleton pulse or spinner
 
-## TresoPilot Creative Applications
+## {project-name} Creative Applications
 
-### Mode Simplifié (Sophie - Dirigeante)
+Customize this section for your project's user personas and features:
+
+### Simplified Mode (Casual Users)
 - Warmer, more approachable color palette
 - Larger touch targets
 - More visual representations (charts, icons)
 - Encouraging microcopy ("You're doing great!")
 - Simplified terminology
 
-### Mode Expert (Marc - DAF)
+### Expert Mode (Power Users)
 - Denser information display
 - Keyboard shortcuts prominent
 - Advanced filters visible
 - Technical terminology accepted
 - Efficiency over decoration
 
-### Simulation "Et Si" Interface
+### Simulation / "What If" Interface
 - Scenario cards with preview
 - Slider interactions for variables
 - Real-time result updates
 - Before/after comparison
 - Impact visualization (timeline)
 
-### Gamified Objectives (Epic 15)
+### Gamified Objectives
 ```
-Visual Concept: "Chemin vers l'objectif"
+Visual Concept: "Path to Goal"
 - Starting point (current state)
 - Milestones along the path
 - Destination (goal)
@@ -272,5 +274,5 @@ Before shipping:
 - [ ] Is the core function clear without gamification?
 - [ ] Can a new user understand it in 5 seconds?
 - [ ] Does it feel premium, not gimmicky?
-- [ ] Would Sophie enjoy using it?
-- [ ] Would Marc find it efficient?
+- [ ] Would a casual user enjoy using it?
+- [ ] Would a power user find it efficient?

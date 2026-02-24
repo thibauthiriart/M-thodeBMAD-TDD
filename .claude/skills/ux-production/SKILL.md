@@ -3,14 +3,12 @@
 > **Quand utiliser cette skill :**
 > - Concevoir ou implementer des composants UI production-ready : tables de donnees, formulaires, wizards, dashboards
 > - Definir les specifications detaillees d'un composant (spacing, etats, validation, accessibilite)
-> - Travailler sur des interfaces data-intensive (Plan de Tresorerie, template editor, import wizard)
-> - Cas typique : "Implementer la table editable du plan de tresorerie" ou "Concevoir le formulaire d'import avec validation"
+> - Travailler sur des interfaces data-intensive (tableaux editables, editeurs de templates, wizards d'import)
+> - Cas typique : "Implementer la table editable" ou "Concevoir le formulaire d'import avec validation"
 >
 > **Ne PAS utiliser pour :** l'exploration creative et l'innovation UX (utiliser `/ux-creative` a la place) ni pour auditer du code UI existant (utiliser `/ux-review` a la place)
 
-Reference design system : @.claude/skills/tresopilot-design-system.md
-
-Expert UI/UX Designer specializing in production-ready, systematic design for data-intensive applications like TresoPilot.
+Expert UI/UX Designer specializing in production-ready, systematic design for data-intensive applications.
 
 ## Philosophy
 
@@ -41,11 +39,11 @@ Every element should visually communicate its function within a unified system. 
 - Choose warm or cool intentionally based on brand
 - Ensure sufficient contrast for color-blind users (WCAG 2.1 AA)
 
-**TresoPilot Specifics:**
-- Success states: Green tones for positive variances, profits
+Adapt the semantic colors to your project's domain:
+- Success states: Green tones for positive outcomes
 - Warning states: Orange/amber for thresholds, alerts
-- Error states: Red for negative variances, critical issues
-- Primary: Professional blue for trust, finance context
+- Error states: Red for critical issues
+- Primary: Choose a color that reflects your brand identity
 
 ### Typography
 - **2-3 typefaces maximum** with clear hierarchy
@@ -66,9 +64,9 @@ Use consistent spacing scale: 4, 8, 12, 16, 24, 32, 48, 64px
 - **Purpose**: Guide attention, confirm actions, not decoration
 - Loading states: subtle skeleton animations
 
-## Data Table Design (Critical for TresoPilot)
+## Data Table Design
 
-### Editable Tables (Plan de Tresorerie)
+### Editable Tables
 ```
 Requirements:
 - Clear cell boundaries with subtle borders
@@ -136,13 +134,13 @@ Requirements:
 
 ## Component Library
 
-**Prefer shadcn/ui components** adapted for Vue 3:
+**Prefer shadcn/ui components** adapted for your framework:
 - Consistent with Tailwind CSS
 - Accessible by default
 - Customizable via CSS variables
 
 **Icons**: Phosphor Icons or Heroicons
-**Toasts**: vue-sonner for notifications
+**Toasts**: vue-sonner (Vue) or react-hot-toast (React) for notifications
 **Charts**: Chart.js or ApexCharts
 
 ## Implementation Checklist
@@ -157,7 +155,9 @@ Before delivering any design:
 - [ ] Empty states considered
 - [ ] Edge cases handled (long text, missing data)
 
-## TresoPilot-Specific Guidelines
+## {project-name}-Specific Guidelines
+
+Customize this section for your project. Below are common patterns for data-intensive applications:
 
 ### Dashboard
 - Key metrics prominently displayed
@@ -165,7 +165,7 @@ Before delivering any design:
 - Color-coded health indicators
 - Quick actions accessible
 
-### Template Editor (Categories/Products)
+### Template / Category Editor
 - Tree view for hierarchy
 - Drag-and-drop for reordering
 - Inline editing where possible
@@ -177,7 +177,7 @@ Before delivering any design:
 - Clear mapping interface
 - Confidence score visualization (badges with colors)
 
-### Variance Management
+### Data Comparison / Variance Views
 - Visual diff between planned/actual
 - Color intensity based on severity
 - Filtering by status/threshold

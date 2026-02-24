@@ -1,32 +1,35 @@
 #!/bin/bash
-# Hook de validation pour TresoPilot
-# Bloque les commandes interdites et rappelle d'utiliser sail
+# Hook de validation des commandes Bash pour BMAD.
+#
+# Personnalisez ce fichier pour votre projet.
+# Exemples de regles :
+#   - Interdire "docker exec" si vous utilisez Docker Compose / Sail
+#   - Interdire "php artisan" direct si vous utilisez un wrapper Docker
+#   - Interdire "npm" si vous utilisez pnpm
+#
+# Pour activer des regles, decommentez les blocs ci-dessous et adaptez-les.
 
-# Lit le JSON en stdin et extrait la commande
-CMD=$(cat | jq -r '.tool_input.command // empty')
+# Lire le JSON de l'outil depuis stdin
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('command',''))" 2>/dev/null)
 
-# Patterns INTERDITS (basés sur l'historique réel des erreurs)
-if echo "$CMD" | grep -qE '^php artisan|^composer '; then
-  echo "❌ INTERDIT: 'php artisan' ou 'composer' direct !" >&2
-  echo "✅ UTILISER: cd api && ./vendor/bin/sail artisan ..." >&2
-  echo "✅ UTILISER: cd api && ./vendor/bin/sail composer ..." >&2
-  exit 2
-fi
+# --- EXEMPLE : Interdire docker exec ---
+# if echo "$COMMAND" | grep -qE '^\s*(docker exec|docker-compose exec)'; then
+#     echo "INTERDIT : Utilisez votre wrapper Docker (ex: sail, docker compose run)" >&2
+#     exit 2
+# fi
 
-if echo "$CMD" | grep -qE 'docker exec|docker-compose exec|docker compose exec'; then
-  echo "❌ INTERDIT: docker exec / docker-compose exec !" >&2
-  echo "✅ UTILISER: cd api && ./vendor/bin/sail ..." >&2
-  exit 2
-fi
+# --- EXEMPLE : Interdire php/composer direct (pour Laravel Sail) ---
+# if echo "$COMMAND" | grep -qE '^\s*(php |composer )'; then
+#     echo "INTERDIT : Utilisez sail. Ex: cd api && ./vendor/bin/sail artisan ..." >&2
+#     exit 2
+# fi
 
-if echo "$CMD" | grep -qE '\./vendor/bin/pest|\bpest\b' | grep -vq 'sail'; then
-  # Vérifie si c'est pest sans sail
-  if echo "$CMD" | grep -qE '\./vendor/bin/pest' && ! echo "$CMD" | grep -q 'sail'; then
-    echo "❌ INTERDIT: ./vendor/bin/pest direct !" >&2
-    echo "✅ UTILISER: cd api && ./vendor/bin/sail pest ..." >&2
-    exit 2
-  fi
-fi
+# --- EXEMPLE : Interdire npm (forcer pnpm) ---
+# if echo "$COMMAND" | grep -qE '^\s*npm '; then
+#     echo "INTERDIT : Utilisez pnpm au lieu de npm" >&2
+#     exit 2
+# fi
 
-# OK - commande autorisée
+# Tout OK par defaut
 exit 0

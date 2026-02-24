@@ -1,51 +1,79 @@
-Lancer le pipeline TDD+BMAD pour une User Story.
+Lancer le pipeline TDD+BMAD pour une User Story ou un Bug.
 
-Tu es un orchestrateur de pipeline. Tu ne développes pas, tu ne testes pas toi-même. Tu coordonnes les agents spécialisés en lançant le script pipeline.py.
+Tu es un orchestrateur de pipeline. Tu ne developpes pas, tu ne testes pas toi-meme. Tu coordonnes les agents specialises en lancant le script pipeline.py.
 
-## Prérequis
+## Prerequisites
 
-La US doit exister dans `US/{story-id}/{story-id}.md` avant de lancer le pipeline.
+La US ou le bug doit exister dans `US/{story-id}/{story-id}.md` avant de lancer le pipeline.
 
-## Pipeline
+## Deux modes
 
-Le pipeline suit la méthode décrite dans `Méthode.md` :
+### Mode Feature (par defaut)
+Pipeline : Facade → Phoenix TDD → Dev Parallel → Tests → Sherlock loop
 
-### Phase 1 : Front Minimal (Facade)
-Construire la coquille interactive : composants Vue, routing, HTML/Tailwind, data-testid.
-ZERO logique métier, ZERO appels API.
+### Mode Bug (`--bug`)
+Pipeline : Investigation → Phoenix Regression → Dev Parallel → Tests → Sherlock loop
 
-### Phase 2 : Phoenix TDD
-Écrire les tests Playwright AVANT l'implémentation.
-Se base sur la US + le front minimal + les data-testid.
-Les tests vont échouer — c'est le but du TDD.
+## Phases
 
-### Phase 3 : Dev Front + Dev Back (parallèle)
-Implémenter la feature complète pour faire passer les tests.
-- Front : services API, stores Pinia, logique
-- Back : controllers, services, migrations, routes API
+### Mode Feature
 
-### Phase 4 : Tests Playwright
-Exécuter les tests. Si tout passe → DONE.
+#### Phase 1 : Front Minimal (Facade)
+Construire la coquille interactive : composants, routing, data-testid.
+ZERO logique metier, ZERO appels API.
+Genere les criteres negatifs (ce qui ne doit PAS se produire).
 
-### Phase 5 : Boucle Sherlock (si échecs)
-Sherlock diagnostique progressivement (niveaux 1→4).
+#### Phase 2 : Phoenix TDD
+Ecrire les tests E2E AVANT l'implementation (positifs ET negatifs).
+Les tests vont echouer : c'est le but du TDD.
+
+### Mode Bug
+
+#### Phase 1 : Investigation
+Analyse read-only du bug : tracer le flux de donnees complet, localiser la cause racine.
+Produit un rapport `investigation-report.md`.
+
+#### Phase 2 : Phoenix Regression
+Ecrire des tests de regression qui reproduisent le bug (doivent echouer avant le fix).
+
+### Phases communes (3-5)
+
+#### Phase 3 : Dev Front + Dev Back (parallele)
+Implementer la feature/fix pour faire passer les tests.
+
+#### Phase 4 : Tests E2E
+Executer les tests. Si tout passe -> DONE.
+
+#### Phase 5 : Boucle Sherlock (si echecs)
+Sherlock diagnostique progressivement (niveaux 1->4).
+- Niveau 1 : Diagnostic rapide
+- Niveau 2 : Analyse semantique + anti-faux-positif
+- Niveau 3 : Audit cross-feature
+- Niveau 4 : Escalade humaine
 Le rapport cumulatif est dans `US/{story-id}/sherlock-report.md`.
-Les devs reçoivent le rapport et corrigent, puis re-test.
-Niveau 4 = escalade humaine.
 
 ## Commande
 
 ```bash
-cd /home/thibaut/Bureau/testApp/.claude/scripts
+cd .claude/scripts
 
-# Lancer le pipeline pour une US
+# Feature mode
 python pipeline.py $ARGUMENTS
 
-# Voir l'état
+# Bug mode
+python pipeline.py <bug-id> --bug
+
+# Voir l'etat
 python pipeline.py --status
 
-# Reprendre une US interrompue
+# Reprendre une US/bug interrompue (mode auto-detecte)
 python pipeline.py --resume <story-id>
+
+# Batch
+python pipeline.py --batch all
+python pipeline.py --batch 2
+python pipeline.py --batch 2-1,2-3 --skip-done
+python pipeline.py --batch BUG-001,BUG-002 --bug
 ```
 
 ## Structure des fichiers
@@ -53,13 +81,36 @@ python pipeline.py --resume <story-id>
 ```
 US/
   {story-id}/
-    {story-id}.md           # La User Story
-    sherlock-report.md      # Rapport Sherlock cumulatif
+    {story-id}.md              # La User Story ou Bug definition
+    investigation-report.md    # Rapport d'investigation (bug mode)
+    sherlock-report.md         # Rapport Sherlock cumulatif
 ```
 
-## État persistant
+## Format Bug
 
-L'état du pipeline est sauvegardé dans `_bmad-output/pipeline-state.yaml`.
-En cas de coupure, utiliser `--resume` pour reprendre.
+Pour lancer le mode bug, creer `US/<bug-id>/<bug-id>.md` avec :
+
+```markdown
+# Bug <bug-id>: [Description]
+
+## Type
+bug
+
+## Description du bug
+[Ce qui se passe et pourquoi c'est un probleme]
+
+## Etapes de reproduction
+1. [Etape 1]
+2. [Etape 2]
+
+## Comportement attendu
+[Ce qui devrait se passer]
+
+## Comportement reel
+[Ce qui se passe actuellement]
+
+## Zone suspectee (optionnel)
+[Fichier ou module suspect]
+```
 
 $ARGUMENTS

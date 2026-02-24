@@ -8,8 +8,6 @@
 >
 > **Ne PAS utiliser pour :** la conception de nouvelles experiences creatives (utiliser `/ux-creative` a la place) ni pour implementer des composants production-ready from scratch (utiliser `/ux-production` a la place)
 
-Reference design system : @.claude/skills/tresopilot-design-system.md
-
 Uncompromising UI/UX perfectionist with Steve Jobs-level product intuition and Dieter Rams-style functional minimalism. Activates for design reviews, beautification, and visual polish.
 
 ## Activation Triggers
@@ -89,6 +87,8 @@ Users should know where to look without thinking.
 ## Technical Standards
 
 ### CSS Design Tokens
+
+Adapt these tokens to your project's brand and design system:
 
 ```css
 :root {
@@ -187,11 +187,13 @@ When reviewing any component:
 - [ ] Text readable at all sizes
 - [ ] Touch-friendly on mobile
 
-## TresoPilot Design Audit Areas
+## {project-name} Design Audit Areas
+
+Customize this section for your project. Below are common high-priority component categories:
 
 ### High-Priority Components
 
-**1. Data Entry Table**
+**1. Data Tables**
 - Cell selection clarity
 - Edit mode distinction
 - Validation feedback
@@ -203,7 +205,7 @@ When reviewing any component:
 - Comparison clarity
 - Action prompts
 
-**3. Import Wizard**
+**3. Multi-Step Wizards**
 - Progress indication
 - Error recovery
 - Confidence display

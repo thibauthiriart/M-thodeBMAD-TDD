@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-dev_sprint.py — Orchestrateur de sprint TresoPilot.
+dev_sprint.py — Orchestrateur de sprint BMAD.
 
 Lance le cycle complet pour une story :
   dev (implémenter) → review (code review) → qa (tests) → fix loop si nécessaire.
@@ -224,7 +224,7 @@ def list_stories():
 
 async def main():
     parser = argparse.ArgumentParser(
-        description="Orchestrateur de sprint TresoPilot",
+        description="Orchestrateur de sprint BMAD",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples :

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/home/thibaut/Bureau/testApp/.claude/validate-bash.sh"
+            "command": ".claude/validate-bash.sh"
           }
         ]
       }
